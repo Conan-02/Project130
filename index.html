@@ -1,0 +1,129 @@
+<html>
+    <head>
+        <title>Project 130</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/p5.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.0.0/addons/p5.sound.min.js" ></script>
+        <script src="https://unpkg.com/ml5@0.4.3/dist/ml5.min.js"></script>
+        <script src="main.js"></script>
+    </head>
+
+    <body>
+        <div>
+            <h1><b>REALTIME MUSIC</b></h1>
+            <h3>RAISE YOUR LEFT WRIST TO PLAY THE PETERPAN SONG AND THE RIGHT TO PLAY HARRY POTTER!</h3>
+        </div>
+        <h3 id="h3">SONG: <b id="songName"></b></h3>
+    </body>
+
+    <style>
+        body {
+            text-align: center;
+            font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+            font-size: 20px;
+            font-weight: bold;
+            color: coral;
+            padding: 50px;
+            background: coral;
+            border-width: 12.5px;
+            border-style: solid;
+            border-color: rgb(241, 180, 180);
+            border-radius: 25px;
+            text-shadow: 1px 1px 5px coral;
+            box-shadow: 5px 5px 20px rgb(241, 180, 180);
+        }
+
+        div {
+            background-color: rgb(241, 180, 180);
+            padding: 20px;
+            border-radius: 25px;
+            border-color: rgb(241, 180, 180);
+            border-style: solid;
+            border-width: 5px;
+            box-shadow: 2px 2px 10px rgb(241, 180, 180);
+        }
+
+        #h3{
+            background-color: rgb(241, 180, 180);
+            padding: 20px;
+            border-radius: 25px;
+            font-weight: 100;
+            border-color: rgb(241, 180, 180);
+            border-style: solid;
+            border-width: 5px;
+            box-shadow: 2px 2px 10px rgb(241, 180, 180);
+        }
+
+        canvas {
+            border-radius: 25px;
+            border-color: rgb(241, 180, 180);
+            border-style: solid;
+            border-width: 5px;
+            box-shadow: 2px 2px 10px rgb(241, 180, 180);
+            margin-top: 185px;
+        }
+    </style>
+
+    <script>
+        var rightY = 0;
+        var leftY = 0;
+        var scoreR = 0;
+        var scoreL = 0;
+
+        function preload() {
+            song1 = loadSound("music.mp3");
+            song2 = loadSound("music2.mp3");
+        }
+
+        function setup() {
+            canvas = createCanvas(350, 300);
+            canvas.center();
+
+            video = createCapture(VIDEO);
+            video.hide();
+
+            poseNet = ml5.poseNet(video, loaded);
+            poseNet.on("pose", gotPose);
+        }
+
+        function draw() {
+            image(video, 350, 300, 0, 0);
+
+            if (scoreR > 0.2) {
+                song2.stop();
+                song1.setVolume(1);
+                song1.rate(1);
+                song1.play();
+            }
+            if (scoreL > 0.2) {
+                song1.stop();
+                song2.setVolume(1);
+                song2.rate(1);
+                song2.play();
+            }
+        }
+
+        function loaded() {
+            console.log("loaded");
+        }
+
+        function gotPose(results) {
+            if (results.length > 0) {
+                console.log(results);
+
+                rightY = results[0].pose.rightWrist.y;
+                leftY = results[0].pose.leftWrist.y;
+                scoreR = results[0].pose.keypoints[10].score;
+                scoreL = results[0].pose.keypoints[9].score;
+
+                console.log("right y = " + rightY);
+                console.log("left y = " + leftY);
+                console.log("right score = " + scoreR);
+                console.log("left score = " + scoreL);
+            }
+        }
+    </script>
+</html>
